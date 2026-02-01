@@ -22,6 +22,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/shipments', [ShipmentsController::class, 'index'])->name('shipments.index');
     Route::get('/shipments/{shipment}/show', [ShipmentsController::class, 'show'])->name('shipments.show');
+    Route::get('/shipments/{shipment}/checkEmail', [ShipmentsController::class, 'checkEmail'])->name('shipments.checkEmail');
     Route::post('/shipments/{shipment}/addReferent', [ShipmentsController::class, 'addReferent'])->name('shipments.add_referent');
 });
 

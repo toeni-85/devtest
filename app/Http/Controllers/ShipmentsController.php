@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class ShipmentsController extends Controller
 {
@@ -14,7 +14,7 @@ class ShipmentsController extends Controller
     public function index()
     {
         return Inertia::render('Shipments/Index', [
-            'shipments' => Shipment::with('referents','team')->limit(100)->get(),
+            'shipments' => Shipment::with('referents', 'team')->limit(100)->get(),
         ]);
     }
 
@@ -44,13 +44,25 @@ class ShipmentsController extends Controller
         ]);
     }
 
+    public function checkEmail(Request $request, Shipment $shipment)
+    {
+        $email = $request->query('email');
+
+        $exists = $shipment->referents()
+            ->where('team_id', $shipment->team_id)
+            ->where('email', $email)
+            ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     public function addReferent(Request $request, Shipment $shipment)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'      => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
+            'email'     => 'required|email|max:255',
+            'phone'     => 'required|string|max:20',
         ]);
         $validated['team_id'] = $shipment->team_id;
 
