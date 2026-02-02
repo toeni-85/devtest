@@ -94,8 +94,6 @@ const onReferentAdded = ({ referent, scope }: any) => {
     });
 };
 
-console.log('Shipment props:', props.shipment);
-
 // Define breadcrumbs for navigation
 const breadcrumbs: BreadcrumbItem[] = [
     {

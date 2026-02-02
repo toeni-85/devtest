@@ -41,7 +41,13 @@ class ShipmentsController extends Controller
     public function show(Shipment $shipment)
     {
         return Inertia::render('Shipments/Show', [
-            'shipment' => $shipment->load('referents', 'team'),
+            'shipment' => $shipment->load([
+                // Only load referents where referent.team_id == shipment.team_id
+                'referents' => function ($query) use ($shipment) {
+                    $query->where('team_id', $shipment->team_id);
+                },
+                'team',
+            ]),
         ]);
     }
 
