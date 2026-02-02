@@ -52,7 +52,7 @@ import { Button } from '@/components/ui/button'
 /**
  * Define component props passed from parent
  * `shipmentId` is used for API calls
- * `scope` defines where the referent applies (start | end)
+ * `scope` defines where the Referent applies (start | end)
  */ 
 const props = defineProps<{
     shipmentId: number | string;
@@ -111,7 +111,7 @@ const submitForm = async () => {
     loading.value = true;
     errors.value = {};
 
-    // Pre-check to avoid creating duplicate referents
+    // Pre-check to avoid creating duplicate Referents
     const emailTaken = await checkEmailExists(form.email);
 
     // Show error if email is already been taken and stop submission showing error message for a few seconds
@@ -127,20 +127,20 @@ const submitForm = async () => {
     }
 
     try {
-        // Send POST request to add referent to shipment
+        // Send POST request to add Referent to shipment
         const response = await axios.post(
             `/shipments/${props.shipmentId}/addReferent`,
             form
         );
 
         // Notify parent component of success
-        emit('referent-added', response.data);
+        emit('referent-added', {
+            referent: response.data,
+            scope: form.scope
+        });
 
         // Reset form inputs
         resetForm();
-
-        // Optionally, reload the page to reflect changes
-        window.location.reload();
 
     } catch (error) {
         console.error('Error saving referent:', error);
@@ -151,7 +151,7 @@ const submitForm = async () => {
 };
 
 /**
- * Check if a referent email already exists for this shipment
+ * Check if a Referent email already exists for this shipment
  * Returns true if the email is already in use
  */
 const checkEmailExists = async (email: string): Promise<boolean> => {

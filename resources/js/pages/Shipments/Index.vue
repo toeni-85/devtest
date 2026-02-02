@@ -112,8 +112,8 @@ const props = defineProps<{
 }>();
 
 /**
- * Filter referents to only those belonging to the shipment's team.
- * This avoids showing referents from other teams that may be attached through shared relationships.
+ * Filter Referents to only those belonging to the shipment's team.
+ * This avoids showing Referents from other teams that may be attached through shared relationships.
  */
 const getTeamReferents = (shipment: typeof props.shipments[number]) => {
     return shipment.referents.filter(r => r.team_id === shipment.team.id);

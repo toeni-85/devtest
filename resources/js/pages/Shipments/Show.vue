@@ -34,7 +34,11 @@
                     </ul>
                 </div>
                 <div>
-                    <ReferentForm :shipment-id="shipment.id" scope="start" />
+                    <ReferentForm
+                        :shipment-id="shipment.id"
+                        scope="start"
+                        @referent-added="onReferentAdded"
+                    />
                 </div>
             </div>
 
@@ -54,7 +58,11 @@
                     </ul>
                 </div>
                 <div>
-                    <ReferentForm :shipment-id="shipment.id" scope="end" />
+                    <ReferentForm
+                        :shipment-id="shipment.id"
+                        scope="end"
+                        @referent-added="onReferentAdded"
+                    />
                 </div>
             </div>
 
@@ -63,18 +71,32 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import ReferentForm from '@/components/ReferentForm.vue';
 
-const props = defineProps({
-    shipment: Array,
-});
+// Define and strongly type component props
+const props = defineProps<{
+    shipment: any;
+}>();
+
+// Create a local reactive copy that Vue CAN update
+const shipment = ref(props.shipment);
+
+// Handle Referent added event to update local shipment data
+const onReferentAdded = ({ referent, scope }: any) => {
+    shipment.value.referents.push({
+        ...referent,
+        pivot: { scope }
+    });
+};
 
 console.log('Shipment props:', props.shipment);
 
+// Define breadcrumbs for navigation
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
