@@ -61,7 +61,7 @@
                         {{ shipment.to }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                        {{ shipment.referents.length }}
+                        {{ getTeamReferents(shipment).length }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                         <a
@@ -95,8 +95,28 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const props = defineProps({
-    shipments: Array,
-});
+// Define and strongly type component props
+const props = defineProps<{
+    shipments: Array<{
+        id: number;
+        team: { id: number; name: string };
+        from: string;
+        to: string;
+        referents: Array<{ 
+            id: number;
+            email: string;
+            team_id: number;
+            pivot: { scope: string }
+        }>;
+    }>;
+}>();
+
+/**
+ * Filter referents to only those belonging to the shipment's team.
+ * This avoids showing referents from other teams that may be attached through shared relationships.
+ */
+const getTeamReferents = (shipment: typeof props.shipments[number]) => {
+    return shipment.referents.filter(r => r.team_id === shipment.team.id);
+};
 
 </script>

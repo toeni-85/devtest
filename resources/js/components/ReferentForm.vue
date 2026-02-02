@@ -37,7 +37,7 @@
             {{ loading ? 'Saving...' : 'Save' }}
         </Button>
         
-        <div v-if="showEmailErrorModal" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+        <div v-if="showEmailError" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
             <p class="block sm:inline">This email has already been added to the shipment.</p>
         </div>
     </form>
@@ -49,16 +49,32 @@ import { reactive, ref } from 'vue';
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
+/**
+ * Define component props passed from parent
+ * `shipmentId` is used for API calls
+ * `scope` defines where the referent applies (start | end)
+ */ 
 const props = defineProps<{
     shipmentId: number | string;
     scope: string;
 }>();
 
+/**
+ * Define events emitted to parent component
+ * - referent-added: fired after successful creation
+ * - error: fired when an API error occurs
+ */ 
 const emit = defineEmits<{
     'referent-added': [data: any];
     'error': [error: any];
 }>();
 
+/**
+ * Form state management
+ * Using reactive to create a form object with fields
+ * `scope` is pre-filled from props and not user-editable
+ */ 
+// 
 const form = reactive({
     name: '',
     last_name: '',
@@ -67,25 +83,43 @@ const form = reactive({
     scope: props.scope
 });
 
+/**
+ * Validation errors structure
+ * Each field can have multiple error messages
+ */ 
 interface ValidationErrors {
     [key: string]: string[]; // each field (email, name, phone…) can have multiple errors
 }
 
+/**
+ * Component state variables
+ * - loading: indicates form submission in progress
+ * - errors: holds validation errors from API
+ * - showEmailError: controls visibility of email error alert
+ */
 const loading = ref(false);
 const errors = ref<ValidationErrors>({});
-const showEmailErrorModal = ref(false);
+const showEmailError = ref(false);
 
+/**
+ * Submit form data to backend API
+ * - Validates email uniqueness before submission
+ * - Emits events based on success or failure
+ * - Resets form on success
+ */
 const submitForm = async () => {
     loading.value = true;
     errors.value = {};
 
+    // Pre-check to avoid creating duplicate referents
     const emailTaken = await checkEmailExists(form.email);
 
+    // Show error if email is already been taken and stop submission showing error message for a few seconds
     if (emailTaken) {
-        showEmailErrorModal.value = true
+        showEmailError.value = true
 
         setTimeout(() => {
-            showEmailErrorModal.value = false
+            showEmailError.value = false
         }, 5000)
 
         loading.value = false
@@ -93,14 +127,19 @@ const submitForm = async () => {
     }
 
     try {
+        // Send POST request to add referent to shipment
         const response = await axios.post(
             `/shipments/${props.shipmentId}/addReferent`,
             form
         );
 
+        // Notify parent component of success
         emit('referent-added', response.data);
+
+        // Reset form inputs
         resetForm();
-        //reload page
+
+        // Optionally, reload the page to reflect changes
         window.location.reload();
 
     } catch (error) {
@@ -111,6 +150,10 @@ const submitForm = async () => {
     }
 };
 
+/**
+ * Check if a referent email already exists for this shipment
+ * Returns true if the email is already in use
+ */
 const checkEmailExists = async (email: string): Promise<boolean> => {
     if (!email) return false;
 
@@ -125,6 +168,10 @@ const checkEmailExists = async (email: string): Promise<boolean> => {
     }
 };
 
+/**
+ * Reset form fields after successful submission
+ * Scope is preserved from props
+ */
 const resetForm = () => {
     form.name = '';
     form.last_name = '';

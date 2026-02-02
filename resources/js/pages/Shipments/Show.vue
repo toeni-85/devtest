@@ -24,9 +24,10 @@
                 <div>
                     <h2 class="text-xl font-semibold mb-2">Start Referents</h2>
                     <ul class="list-disc list-inside">
-                        <li v-for="referent in shipment.referents.filter(r => r.pivot.scope === 'start')"
-                            :key="referent.id">
-                            {{ referent.name }}
+                        <li v-for="referent in shipment.referents.filter(
+                            r => r.pivot.scope === 'start' && r.team_id === shipment.team.id
+                        )" :key="referent.id">
+                            {{ referent.name }} {{ referent.last_name }}
                             <br>
                             ({{ referent.email }})
                         </li>
@@ -43,9 +44,10 @@
                 <div>
                     <h2 class="text-xl font-semibold mb-2">End Referents</h2>
                     <ul class="list-disc list-inside">
-                        <li v-for="referent in shipment.referents.filter(r => r.pivot.scope === 'end')"
-                            :key="referent.id">
-                            {{ referent.name }}
+                        <li v-for="referent in shipment.referents.filter(
+                            r => r.pivot.scope === 'end' && r.team_id === shipment.team.id
+                        )" :key="referent.id">
+                            {{ referent.name }} {{ referent.last_name }}
                             <br>
                             ({{ referent.email }})
                         </li>
@@ -71,6 +73,8 @@ const props = defineProps({
     shipment: Array,
 });
 
+console.log('Shipment props:', props.shipment);
+
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Dashboard',
@@ -85,6 +89,5 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '',
     }
 ];
-
 
 </script>
